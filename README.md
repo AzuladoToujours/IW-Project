@@ -12,13 +12,10 @@ npm install --save
 
 This are the necessary env variables to run the project locally.
 
-1. DEV_DB
-2. PORT
-3. JWT_SECRET
+1. **DEV_DB** Will be the mongoDB Uri. **Example:** **_mongodb://localhost:27017/IWDev_**
+2. **PORT** Will be the port that the API will listen. **Example:** **_3000_**
+3. **JWT_SECRET** Secret to tokens and encryption **Example:** **_IWPROJECT_**
 
-**DEV_DB** Will be the mongoDB Uri. **Example:** **_mongodb://localhost:27017/IWDev_**
-**PORT** Will be the port that the API will listen. **Example:** **_3000_**
-**JWT_SECRET** Secret to tokens and encryption **Example:** **_IWPROJECT_**
 
 # Run the project
 
