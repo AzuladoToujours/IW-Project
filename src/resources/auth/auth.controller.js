@@ -1,13 +1,18 @@
 const Worker = require('../worker/worker.model');
 const jwt = require('jsonwebtoken');
+const { sendMail, mailOptions } = require('./auth.helper');
 require('dotenv').config();
 
 exports.signUp = async (req, res) => {
+  const email = req.body.email;
+
+  const mailMesagge = mailOptions(email);
+
   const worker = await new Worker(req.body);
 
   await worker.save();
 
-  res.status(200).json({ message: 'Signup Successfully' });
+  await sendMail(mailMesagge, req, res);
 };
 
 exports.signIn = async (req, res) => {
