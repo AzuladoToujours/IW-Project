@@ -53,6 +53,10 @@ const workerSchema = new mongoose.Schema({
     type: String,
     default: 'worker',
   },
+  salary: {
+    type: String,
+    default: 0,
+  },
   created_by: {
     type: ObjectId,
     ref: 'Worker',

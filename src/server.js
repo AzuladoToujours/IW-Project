@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const authRouter = require('./resources/auth/auth.routes');
-const workerRouter = require('./resources/worker/worker.routes');
+const workerRouter = require('./resources/workers/worker/worker.routes');
 const { connect } = require('./utils/dbConnection');
 
 const app = express();

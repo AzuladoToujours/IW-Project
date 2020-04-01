@@ -1,5 +1,5 @@
 const { check, validationResult } = require('express-validator');
-const Worker = require('../worker/worker.model');
+const Worker = require('../workers/worker/worker.model');
 exports.validations = [
   check('dni', 'Identity card must have between 5 and 10 digits').matches(
     /[0-9]{5,10}/
