@@ -1,4 +1,6 @@
 const { transporter } = require('../../utils/mailer');
+const expressJwt = require('express-jwt');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const signedUpMail = (email, req, res) => {
@@ -26,4 +28,21 @@ const signedUpMail = (email, req, res) => {
   });
 };
 
-module.exports = { signedUpMail };
+const verifySignUpToken = (req, res, next) => {
+  const token = req.params.signupToken;
+
+  var decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+  req.params.decodedInformation = decoded;
+
+  next();
+};
+
+const requireSignIn = expressJwt({
+  //if the token is valid, express jwt appends the verified admin id
+  //in an auth key to the request object
+  secret: process.env.JWT_SECRET,
+  userProperty: 'auth',
+});
+
+module.exports = { signedUpMail, requireSignIn, verifySignUpToken };

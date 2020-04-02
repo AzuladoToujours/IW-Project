@@ -6,7 +6,19 @@ require('dotenv').config();
 exports.signUp = async (req, res) => {
   const email = req.body.email;
 
-  const worker = await new Worker(req.body);
+  const body = {
+    names: req.body.names,
+    last_names: req.body.last_names,
+    mobile: req.body.mobile,
+    dni: req.body.dni,
+    birthday: req.body.birthday,
+    gender: req.body.gender,
+    email: req.body.email,
+    created_by: req.params.decodedInformation.createdBy,
+    password: req.body.password,
+  };
+
+  const worker = await new Worker(body);
 
   await worker.save();
 
