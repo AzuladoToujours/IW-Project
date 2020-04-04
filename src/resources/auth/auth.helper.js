@@ -2,14 +2,15 @@ const { transporter } = require('../../utils/mailer');
 const expressJwt = require('express-jwt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const { configs } = require('../../config/index');
 
 const signedUpMail = (email, req, res) => {
+  const API_URL = configs.apiUrl;
   const mailOptions = {
     from: `${process.env.GMAIL_EMAIL}`,
     to: `${email}`,
     subject: 'Signed Up Succesfully!',
-    text:
-      'Congrats! you have been signed up to the Human Resources Project @Web Engineering Class, 2019-2.',
+    html: `Congrats! you have been signed up to the Human Resources Project @Web Engineering Class, 2019-2. Please redirect to <a href = ${API_URL}/signin> Sign In </a>`,
   };
 
   transporter.sendMail(mailOptions, function (err, success) {

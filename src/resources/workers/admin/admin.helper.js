@@ -8,8 +8,8 @@ const signUpMail = (email, token, req, res) => {
   const mailOptions = {
     from: `${process.env.GMAIL_EMAIL}`,
     to: `${email}`,
-    subject: 'Sign up redirection',
-    text: `An admin has sent you an invitation to join the Human Resources Project, follow the next link to continue the process ${API_URL}/signup/${token}`,
+    subject: 'Sign Up Redirection',
+    html: `An admin has sent you an invitation to join the Human Resources Project, follow the next <a href=${API_URL}/signup/${token} >link</a> to continue the sign up process`,
   };
 
   transporter.sendMail(mailOptions, function (err, success) {
