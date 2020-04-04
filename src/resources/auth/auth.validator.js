@@ -1,5 +1,5 @@
 const { check, validationResult } = require('express-validator');
-const Worker = require('../worker/worker.model');
+const Worker = require('../workers/worker/worker.model');
 exports.validations = [
   check('dni', 'Identity card must have between 5 and 10 digits').matches(
     /[0-9]{5,10}/
@@ -32,12 +32,12 @@ exports.signUpValidator = async (req, res, next) => {
       .json({ error: "There's already a worker with that dni" });
   }
 
-  const workerExist = await Worker.findOne({ email: req.body.email });
-
-  if (workerExist) {
+  const email = req.body.email;
+  const emailAtToken = req.params.decodedInformation.email;
+  if (email != emailAtToken) {
     return res
       .status(400)
-      .json({ error: "There's already a worker with that email" });
+      .json({ error: 'Email invited and email suministred does not match' });
   }
 
   //Check for error
@@ -51,4 +51,8 @@ exports.signUpValidator = async (req, res, next) => {
 
   //Proceed to next middleware
   next();
+};
+
+exports.allowAccess = async (req, res) => {
+  return res.status(200).json({ access: true });
 };

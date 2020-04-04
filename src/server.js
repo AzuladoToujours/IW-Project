@@ -4,7 +4,8 @@ const morgan = require('morgan');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const authRouter = require('./resources/auth/auth.routes');
-const workerRouter = require('./resources/worker/worker.routes');
+const adminRouter = require('./resources/workers/admin/admin.routes');
+const workerRouter = require('./resources/workers/worker/worker.routes');
 const { connect } = require('./utils/dbConnection');
 
 const app = express();
@@ -16,6 +17,13 @@ app.use(morgan('dev'));
 
 app.use('/api', authRouter);
 app.use('/api', workerRouter);
+app.use('/api', adminRouter);
+app.use(function (err, req, res, next) {
+  console.log(err.message);
+  if (err.message == 'jwt expired') {
+    return res.status(401).json({ error: 'Session or token expired!' });
+  }
+});
 
 const start = async () => {
   try {

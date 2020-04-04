@@ -1,18 +1,28 @@
-const Worker = require('../worker/worker.model');
+const Worker = require('../workers/worker/worker.model');
 const jwt = require('jsonwebtoken');
-const { sendMail, mailOptions } = require('./auth.helper');
+const { signedUpMail } = require('./auth.helper');
 require('dotenv').config();
 
 exports.signUp = async (req, res) => {
   const email = req.body.email;
 
-  const mailMesagge = mailOptions(email);
+  const body = {
+    names: req.body.names,
+    last_names: req.body.last_names,
+    mobile: req.body.mobile,
+    dni: req.body.dni,
+    birthday: req.body.birthday,
+    gender: req.body.gender,
+    email: req.body.email,
+    created_by: req.params.decodedInformation.createdBy,
+    password: req.body.password,
+  };
 
-  const worker = await new Worker(req.body);
+  const worker = await new Worker(body);
 
   await worker.save();
 
-  await sendMail(mailMesagge, req, res);
+  await signedUpMail(email, req, res);
 };
 
 exports.signIn = async (req, res) => {
@@ -32,7 +42,8 @@ exports.signIn = async (req, res) => {
     //Generate a token with the worker id and the secret jwt
     const token = jwt.sign(
       { _id: worker._id, role: worker.role },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
     );
     const { _id, names, last_names, email, role } = worker;
 

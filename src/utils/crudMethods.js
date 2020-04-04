@@ -4,7 +4,9 @@ const getOne = (model) => async (req, res) => {
     if (modelName == 'workers') {
       const doc = await model
         .findOne({ _id: req.params.id })
-        .select('role names last_names mobile email dni birthday gender')
+        .select(
+          'role names last_names mobile email dni birthday gender salary created_by'
+        )
         .lean()
         .exec();
 
@@ -27,7 +29,9 @@ const getMany = (model) => async (req, res) => {
     if (modelName == 'workers') {
       const docs = await model
         .find()
-        .select('role names last_names mobile email dni birthday gender')
+        .select(
+          'role names last_names mobile email dni birthday gender salary created_by'
+        )
         .lean()
         .exec();
 
