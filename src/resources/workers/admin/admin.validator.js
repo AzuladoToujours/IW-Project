@@ -11,7 +11,7 @@ exports.sendSignUpMailValidator = async (req, res, next) => {
   if (workerExist) {
     return res
       .status(400)
-      .json({ error: "There's already a worker with that email" });
+      .json({ error: 'Ya existe un trabajador con ese email' });
   }
 
   //Check for error

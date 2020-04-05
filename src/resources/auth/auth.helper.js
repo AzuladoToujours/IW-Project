@@ -10,7 +10,7 @@ const signedUpMail = (email, req, res) => {
     from: `${process.env.GMAIL_EMAIL}`,
     to: `${email}`,
     subject: 'Signed Up Succesfully!',
-    html: `Congrats! you have been signed up to the Human Resources Project @Web Engineering Class, 2019-2. Please redirect to <a href = ${API_URL}/signin> Sign In </a>`,
+    html: `Felicitaciones! Usted ha sido registrado al  "Human Resources Project @Web Engineering Class, 2019-2." Por favor redireccionar a  <a href = ${API_URL}/signin> para el Sign In </a>`,
   };
 
   transporter.sendMail(mailOptions, function (err, success) {
@@ -23,14 +23,19 @@ const signedUpMail = (email, req, res) => {
     } else {
       console.log(success);
       return res.status(200).json({
-        message: `Signed Up succesfully. An email has been sent to ${req.body.email}.`,
+        message: `Registrado correctamente. Un email ha sido enviado a ${req.body.email}.`,
       });
     }
   });
 };
 
 const verifySignUpToken = (req, res, next) => {
-  const token = req.params.signupToken;
+  var token;
+  if (req.headers.authorization) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.params.signupToken) {
+    token = req.params.signupToken;
+  }
 
   var decoded = jwt.verify(token, process.env.JWT_SECRET);
 

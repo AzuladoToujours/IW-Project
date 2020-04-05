@@ -19,9 +19,10 @@ app.use('/api', authRouter);
 app.use('/api', workerRouter);
 app.use('/api', adminRouter);
 app.use(function (err, req, res, next) {
-  console.log(err.message);
-  if (err.message == 'jwt expired') {
-    return res.status(401).json({ error: 'Session or token expired!' });
+  if (err) {
+    return res
+      .status(401)
+      .json({ error: 'Sesión o token invalidos!', access: false });
   }
 });
 

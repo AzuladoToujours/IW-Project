@@ -12,5 +12,6 @@ router.post(
   sendSignUpMailValidator,
   sendSignUpMail
 );
+// router.post('/admin/signup', requireSignIn, hasAdminAuthorization, );
 
 module.exports = router;

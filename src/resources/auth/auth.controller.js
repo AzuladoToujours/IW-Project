@@ -5,6 +5,13 @@ require('dotenv').config();
 
 exports.signUp = async (req, res) => {
   const email = req.body.email;
+  var createdBy;
+
+  if (req.params.decodedInformation.createdBy) {
+    createdBy = req.params.decodedInformation.createdBy;
+  } else {
+    createdBy = req.params.decodedInformation._id;
+  }
 
   const body = {
     names: req.body.names,
@@ -13,16 +20,19 @@ exports.signUp = async (req, res) => {
     dni: req.body.dni,
     birthday: req.body.birthday,
     gender: req.body.gender,
-    email: req.body.email,
-    created_by: req.params.decodedInformation.createdBy,
+    email: email,
+    created_by: createdBy,
     password: req.body.password,
   };
 
-  const worker = await new Worker(body);
+  try {
+    const worker = new Worker(body);
+    await worker.save();
+  } catch (e) {
+    return res.status(500).send('Error inesperado');
+  }
 
-  await worker.save();
-
-  await signedUpMail(email, req, res);
+  signedUpMail(email, req, res);
 };
 
 exports.signIn = async (req, res) => {
@@ -30,13 +40,11 @@ exports.signIn = async (req, res) => {
 
   await Worker.findOne({ email }, (err, worker) => {
     if (err | !worker) {
-      return res
-        .status(400)
-        .json({ error: 'Worker with that email does not exist' });
+      return res.status(403).json({ error: 'Usuario no registrado' });
     }
 
     if (!worker.authenticate(password)) {
-      return res.status(404).json({ error: 'Wrong credentials' });
+      return res.status(403).json({ error: 'Usuario o contraseña inválidos.' });
     }
 
     //Generate a token with the worker id and the secret jwt

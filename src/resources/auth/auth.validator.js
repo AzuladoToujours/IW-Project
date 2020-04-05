@@ -1,43 +1,55 @@
 const { check, validationResult } = require('express-validator');
 const Worker = require('../workers/worker/worker.model');
 exports.validations = [
-  check('dni', 'Identity card must have between 5 and 10 digits').matches(
+  check('dni', 'La cédula debe contener entre 5 y 10 dígitos').matches(
     /[0-9]{5,10}/
   ),
   //NAMES ARE NOT NULL
-  check('names', 'Names must be between 1 and 40 characters').matches(
+  check('names', 'Los nombres deben contener entre 1 y 40 carácteres').matches(
     /[a-zA-Z]{1,40}/
   ),
   //LAST NAMES ARE NOT NULL
-  check('last_names', 'Last names must be between 1 and 40 characters').matches(
-    /[a-zA-Z]{1,40}/
-  ),
+  check(
+    'last_names',
+    'Los apellidos deben contener entre 1 y 40 carácteres'
+  ).matches(/[a-zA-Z]{1,40}/),
   //MOBILE MUST HAVE TEN DIGITS AND NOT BE NULL
-  check('mobile', 'Mobile must have ten digits').matches(/[0-9]{10}/),
+  check('mobile', 'Celular debe contener 10 dígitos').matches(/[0-9]{10}/),
   //EMAIL VALID AND NORMALIZED
-  check('email', 'Email must be valid').isEmail(),
+  check('email', 'Provea un email válido').isEmail(),
   //Check for password
   check(
     'password',
-    'Password must contain at least 6 characters and include at least one number'
-  ).matches(/([a-zA-Z\d]){6,40}/),
+    'La contraseña debe contener 6 o más dígitos, entre los cuales se pueden encontrar números y carácteres especiales'
+  ).matches(/(\X*){6,40}/),
 ];
 
 exports.signUpValidator = async (req, res, next) => {
   const workerDniExist = await Worker.findOne({ dni: req.body.dni });
-
   if (workerDniExist) {
     return res
       .status(400)
-      .json({ error: "There's already a worker with that dni" });
+      .json({ error: 'Ya existe un trabajador con ese dni' });
   }
 
-  const email = req.body.email;
-  const emailAtToken = req.params.decodedInformation.email;
-  if (email != emailAtToken) {
+  const workerEmailExist = await Worker.findOne({ email: req.body.email });
+  if (workerEmailExist) {
     return res
       .status(400)
-      .json({ error: 'Email invited and email suministred does not match' });
+      .json({ error: 'Ya existe un trabajador con ese email' });
+  }
+
+  const isAdmin = req.params.decodedInformation.role == 'admin';
+
+  if (!isAdmin) {
+    const email = req.body.email;
+    const emailAtToken = req.params.decodedInformation.email;
+    if (email != emailAtToken) {
+      return res.status(400).json({
+        error:
+          'El email de la invitación y el email sumistrado no corresponden',
+      });
+    }
   }
 
   //Check for error
@@ -48,11 +60,10 @@ exports.signUpValidator = async (req, res, next) => {
     errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }));
     return res.status(400).json({ errors: extractedErrors });
   }
-
   //Proceed to next middleware
   next();
 };
 
-exports.allowAccess = async (req, res) => {
+exports.allowAccess = async (req, res, err) => {
   return res.status(200).json({ access: true });
 };
