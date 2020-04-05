@@ -19,8 +19,8 @@ exports.sendSignUpMailValidator = async (req, res, next) => {
   //if error show the first one as they happend
   if (!errors.isEmpty()) {
     const extractedErrors = [];
-    errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }));
-    return res.status(200).json({ error: extractedErrors[0] });
+    errors.array().map((err) => extractedErrors.push(err.msg));
+    return res.status(200).json({ errors: extractedErrors });
   }
 
   //Proceed to next middleware
