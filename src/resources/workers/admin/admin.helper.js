@@ -31,7 +31,7 @@ const hasAdminAuthorization = (req, res, next) => {
   let isAdmin = req.auth && req.auth.role === 'admin';
   //Checks if the user is signed up and checks if his role is admin
   if (!isAdmin) {
-    return res.status(403).json({
+    return res.status(401).json({
       error: 'El usuario no está autorizado para realizar esta acción',
     });
   }
