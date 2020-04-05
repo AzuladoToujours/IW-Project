@@ -10,7 +10,7 @@ const signedUpMail = (email, req, res) => {
     from: `${process.env.GMAIL_EMAIL}`,
     to: `${email}`,
     subject: 'Signed Up Succesfully!',
-    html: `Felicitaciones! Usted ha sido registrado al  "Human Resources Project @Web Engineering Class, 2019-2." Por favor redireccionar a  <a href = ${API_URL}/signin> para el Sign In </a>`,
+    html: `Felicitaciones! Usted ha sido registrado al  "Human Resources Project @Web Engineering Class, 2019-2." Por favor redireccionar a  <a href = http://humanresourcesclient.s3-website.us-east-2.amazonaws.com/signin> para el Sign In </a>`,
   };
 
   transporter.sendMail(mailOptions, function (err, success) {

@@ -28,14 +28,14 @@ exports.signUpValidator = async (req, res, next) => {
   const workerDniExist = await Worker.findOne({ dni: req.body.dni });
   if (workerDniExist) {
     return res
-      .status(204)
+      .status(200)
       .json({ error: 'Ya existe un trabajador con ese dni' });
   }
 
   const workerEmailExist = await Worker.findOne({ email: req.body.email });
   if (workerEmailExist) {
     return res
-      .status(403)
+      .status(200)
       .json({ error: 'Ya existe un trabajador con ese email' });
   }
 
@@ -45,7 +45,7 @@ exports.signUpValidator = async (req, res, next) => {
     const email = req.body.email;
     const emailAtToken = req.params.decodedInformation.email;
     if (email != emailAtToken) {
-      return res.status(403).json({
+      return res.status(200).json({
         error:
           'El email de la invitación y el email sumistrado no corresponden',
       });
@@ -58,7 +58,7 @@ exports.signUpValidator = async (req, res, next) => {
   if (!errors.isEmpty()) {
     const extractedErrors = [];
     errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }));
-    return res.status(403).json({ errors: extractedErrors });
+    return res.status(200).json({ errors: extractedErrors });
   }
   //Proceed to next middleware
   next();

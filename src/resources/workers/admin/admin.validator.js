@@ -10,7 +10,7 @@ exports.sendSignUpMailValidator = async (req, res, next) => {
 
   if (workerExist) {
     return res
-      .status(403)
+      .status(200)
       .json({ error: 'Ya existe un trabajador con ese email' });
   }
 
@@ -20,7 +20,7 @@ exports.sendSignUpMailValidator = async (req, res, next) => {
   if (!errors.isEmpty()) {
     const extractedErrors = [];
     errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }));
-    return res.status(403).json({ errors: extractedErrors });
+    return res.status(200).json({ error: extractedErrors[0] });
   }
 
   //Proceed to next middleware

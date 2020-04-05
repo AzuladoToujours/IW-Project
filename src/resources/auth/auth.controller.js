@@ -40,11 +40,11 @@ exports.signIn = async (req, res) => {
 
   await Worker.findOne({ email }, (err, worker) => {
     if (err | !worker) {
-      return res.status(403).json({ error: 'Usuario no registrado' });
+      return res.status(200).json({ error: 'Usuario no registrado' });
     }
 
     if (!worker.authenticate(password)) {
-      return res.status(403).json({ error: 'Usuario o contraseña inválidos.' });
+      return res.status(200).json({ error: 'Usuario o contraseña inválidos.' });
     }
 
     //Generate a token with the worker id and the secret jwt
