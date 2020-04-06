@@ -58,3 +58,7 @@ exports.signIn = async (req, res) => {
     return res.json({ token, worker: { _id, email, names, last_names, role } });
   });
 };
+
+exports.signOut = async (req, res) => {
+  return res.status(200).json({ message: 'Sesión cerrada correctamente' });
+};
