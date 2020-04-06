@@ -1,6 +1,7 @@
 const { transporter } = require('../../utils/mailer');
 const expressJwt = require('express-jwt');
 const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 const { configs } = require('../../config/index');
 
@@ -51,4 +52,20 @@ const requireSignIn = expressJwt({
   userProperty: 'auth',
 });
 
-module.exports = { signedUpMail, requireSignIn, verifySignUpToken };
+const rateLimiterUsingThirdParty = rateLimit({
+  windowMs: 3 * 60 * 1000, // 3 minutes
+  max: 3,
+  message: {
+    error:
+      'Has superado el límite de peticiones; por favor espera 3 minutos para volverlo a intentar',
+  },
+  headers: true,
+  statusCode: 200,
+});
+
+module.exports = {
+  signedUpMail,
+  requireSignIn,
+  verifySignUpToken,
+  rateLimiterUsingThirdParty,
+};

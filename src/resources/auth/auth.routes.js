@@ -6,10 +6,13 @@ const {
   validations,
   allowAccess,
 } = require('./auth.validator');
-const { verifySignUpToken } = require('./auth.helper');
+const {
+  verifySignUpToken,
+  rateLimiterUsingThirdParty,
+} = require('./auth.helper');
 router.get('/signup/:signupToken', verifySignUpToken, allowAccess);
 router.post('/signup', verifySignUpToken, validations, signUpValidator, signUp);
 
-router.post('/signin', signIn);
+router.post('/signin', rateLimiterUsingThirdParty, signIn);
 
 module.exports = router;

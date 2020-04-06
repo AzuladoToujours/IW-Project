@@ -18,6 +18,7 @@ app.use(morgan('dev'));
 app.use('/api', authRouter);
 app.use('/api', workerRouter);
 app.use('/api', adminRouter);
+app.set('trust proxy', 1);
 app.use(function (err, req, res, next) {
   if (err) {
     return res

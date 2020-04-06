@@ -40,7 +40,7 @@ exports.signIn = async (req, res) => {
 
   await Worker.findOne({ email }, (err, worker) => {
     if (err | !worker) {
-      return res.status(200).json({ error: 'Usuario no registrado' });
+      return res.status(200).json({ error: 'Usuario o contraseña inválidos.' });
     }
 
     if (!worker.authenticate(password)) {
