@@ -3,7 +3,7 @@ const expressJwt = require('express-jwt');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
-const { configs } = require('../../config/index');
+const Worker = require('../workers/worker/worker.model');
 
 const signedUpMail = (email, req, res) => {
   const API_URL = process.env.FRONT_URL;
@@ -18,13 +18,37 @@ const signedUpMail = (email, req, res) => {
     if (err) {
       console.log(err);
       return res.status(200).json({
-        message:
+        error:
           'Signed Up succesfully. But, it seems that a problem sending the email has ocurred',
       });
     } else {
       console.log(success);
       return res.status(200).json({
         message: `Registrado correctamente. Un email ha sido enviado a ${req.body.email}.`,
+      });
+    }
+  });
+};
+
+const forgotPasswordMail = (email, token, res) => {
+  const API_URL = process.env.FRONT_URL;
+  const mailOptions = {
+    from: `${process.env.GMAIL_EMAIL}`,
+    to: `${email}`,
+    subject: 'Recuperación contraseña',
+    html: `<p>Dispone de una hora para dirigirse al siguiente link para recuperar su contraseña:</p> <p>${API_URL}/reset-password/${token}</p>`,
+  };
+
+  transporter.sendMail(mailOptions, function (err, success) {
+    if (err) {
+      console.log(err);
+      return res.status(200).json({
+        erro: 'Error al enviar correo de recuperación',
+      });
+    } else {
+      console.log(success);
+      return res.status(200).json({
+        message: `Un email ha sido enviado a ${email} con las instrucciones para recuperar su contraseña.`,
       });
     }
   });
@@ -63,9 +87,45 @@ const rateLimiterUsingThirdParty = rateLimit({
   statusCode: 200,
 });
 
+const verifyResetToken = async (req, res, next) => {
+  if (!req.body.resetPasswordLink) {
+    res.status(200).json({ error: 'Token no suministrado' });
+  }
+
+  const { resetPasswordLink } = req.body;
+
+  try {
+    let worker = await Worker.findOne({ resetPasswordLink });
+    if (!worker) {
+      return res.status(200).json({
+        error: 'Link inválido!',
+      });
+    }
+
+    var decoded = jwt.verify(resetPasswordLink, process.env.JWT_SECRET);
+
+    if (worker.hashed_password != decoded.hashed_password) {
+      return res.status(200).json({
+        error: 'Link inválido!',
+      });
+    }
+
+    req.worker = worker;
+
+    next();
+  } catch (e) {
+    console.log(e);
+    return res.status(200).json({
+      error: 'Link inválido!',
+    });
+  }
+};
+
 module.exports = {
   signedUpMail,
   requireSignIn,
   verifySignUpToken,
   rateLimiterUsingThirdParty,
+  forgotPasswordMail,
+  verifyResetToken,
 };

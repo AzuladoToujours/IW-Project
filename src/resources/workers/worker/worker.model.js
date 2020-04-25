@@ -48,7 +48,7 @@ const workerSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  updated: Date,
+  updated_at: Date,
   role: {
     type: String,
     default: 'worker',
@@ -57,9 +57,19 @@ const workerSchema = new mongoose.Schema({
     type: String,
     default: 0,
   },
+  photo: {
+    type: String,
+    default:
+      'https://iw-project.s3.us-east-2.amazonaws.com/workers-photos/defaultpicture.png',
+    trim: true,
+  },
   created_by: {
     type: ObjectId,
     ref: 'Worker',
+  },
+  resetPasswordLink: {
+    data: String,
+    default: '',
   },
 });
 

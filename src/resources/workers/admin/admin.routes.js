@@ -4,6 +4,11 @@ const { sendSignUpMail } = require('./admin.controller');
 const { sendSignUpMailValidator, validations } = require('./admin.validator');
 const { hasAdminAuthorization } = require('./admin.helper');
 const { requireSignIn } = require('../../auth/auth.helper');
+const { defaultCrudMethods } = require('../worker/worker.controller');
+const { getMany, removeOne } = defaultCrudMethods;
+
+router.get('/admin/worker/s/', requireSignIn, hasAdminAuthorization, getMany);
+
 router.post(
   '/admin/sendsignup',
   requireSignIn,
@@ -12,6 +17,11 @@ router.post(
   sendSignUpMailValidator,
   sendSignUpMail
 );
-// router.post('/admin/signup', requireSignIn, hasAdminAuthorization, );
+router.delete(
+  '/admin/worker/fire/:id',
+  requireSignIn,
+  hasAdminAuthorization,
+  removeOne
+);
 
 module.exports = router;
