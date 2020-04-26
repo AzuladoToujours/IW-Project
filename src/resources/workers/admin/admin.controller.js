@@ -34,7 +34,7 @@ const addContract = async (req, res) => {
       return res.status(200).json({ error: 'Error al añadir contrato' });
     }
 
-    res.status(200).json({ message: 'Contrato añadito correctamente' });
+    res.status(200).json({ message: 'Contrato añadido correctamente' });
   });
 };
 
