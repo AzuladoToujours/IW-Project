@@ -9,7 +9,7 @@ const getOne = (model) => async (req, res) => {
       const doc = await model
         .findOne({ _id: req.params.id })
         .select(
-          'role names last_names mobile email dni birthday gender salary created_by'
+          'role names last_names mobile email dni birthday gender salary photo contract status created_by'
         )
         .lean()
         .exec();
@@ -32,9 +32,28 @@ const getMany = (model) => async (req, res) => {
     modelName = model.collection.name;
     if (modelName == 'workers') {
       const docs = await model
-        .find()
+        .find({ status: 'HIRED' })
         .select(
-          'role names last_names mobile email dni birthday gender salary photo created_by updated_at'
+          'role names last_names mobile email dni birthday gender salary photo status created_by updated_at'
+        )
+        .lean()
+        .exec();
+
+      res.status(200).json({ workers: docs });
+    }
+  } catch (e) {
+    return res.status(500).end();
+  }
+};
+
+const getManyFired = (model) => async (req, res) => {
+  try {
+    modelName = model.collection.name;
+    if (modelName == 'workers') {
+      const docs = await model
+        .find({ status: 'FIRED' })
+        .select(
+          'role names last_names mobile email dni birthday gender salary photo status created_by updated_at'
         )
         .lean()
         .exec();
@@ -64,25 +83,26 @@ const updateOne = (model) => async (req, res) => {
 
   worker.updated_at = moment.tz('America/Bogota').format();
 
-  worker.save((err, result) => {
+  await worker.save((err, result) => {
     if (err) {
       console.log(err);
       return res.status(200).json({ error: 'Error al actualizar trabajador' });
     }
-
-    worker.hashed_password = undefined;
-    worker.salt = undefined;
     res.status(200).json({ message: 'Trabajador actualizado correctamente' });
   });
 };
 
 const removeOne = (model) => async (req, res) => {
   try {
-    const removed = await model.findOneAndRemove({
-      _id: req.params.id,
-    });
+    const fired = await model.findOneAndUpdate(
+      {
+        _id: req.params.id,
+      },
+      { $set: { status: 'FIRED' } },
+      { new: true }
+    );
 
-    if (!removed) {
+    if (!fired) {
       return res
         .status(200)
         .json({ error: 'Error al despedir trabajador, id incorrecta.' });
@@ -104,6 +124,7 @@ const crudControllers = (model) => ({
   getMany: getMany(model),
   updateOne: updateOne(model),
   removeOne: removeOne(model),
+  getManyFired: getManyFired(model),
 });
 
 module.exports = {

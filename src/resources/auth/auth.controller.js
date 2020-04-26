@@ -49,6 +49,12 @@ exports.signIn = async (req, res) => {
       return res.status(200).json({ error: 'Usuario o contraseña inválidos.' });
     }
 
+    if (worker.status == 'FIRED') {
+      return res.status(200).json({
+        error: 'Usted ha sido despedido, comuníquese con un administrador.',
+      });
+    }
+
     //Generate a token with the worker id and the secret jwt
     const token = jwt.sign(
       { _id: worker._id, role: worker.role },

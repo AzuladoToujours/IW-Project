@@ -36,7 +36,7 @@ const forgotPasswordMail = (email, token, res) => {
     from: `${process.env.GMAIL_EMAIL}`,
     to: `${email}`,
     subject: 'Recuperación contraseña',
-    html: `<p>Dispone de una hora para dirigirse al siguiente link para recuperar su contraseña:</p> <p>${API_URL}/reset-password/${token}</p>`,
+    html: `<p>Dispone de una hora para dirigirse al siguiente <a href=${API_URL}/reset-password?token=${token}> link </a> y recuperar su contraseña. </p> `,
   };
 
   transporter.sendMail(mailOptions, function (err, success) {

@@ -63,6 +63,14 @@ const workerSchema = new mongoose.Schema({
       'https://iw-project.s3.us-east-2.amazonaws.com/workers-photos/defaultpicture.png',
     trim: true,
   },
+  contract: {
+    type: String,
+    trim: true,
+  },
+  status: {
+    type: String,
+    default: 'HIRED',
+  },
   created_by: {
     type: ObjectId,
     ref: 'Worker',

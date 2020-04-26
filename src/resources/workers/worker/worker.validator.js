@@ -18,6 +18,10 @@ exports.editValidations = [
     .matches(/[0-9]{10}/),
   //EMAIL VALID AND NORMALIZED
   check('email', 'Provea un email válido').optional().isEmail(),
+  //CHECK VALID SALARY
+  check('salary', 'El salario sólo puede contener dígitos')
+    .optional()
+    .matches(/[0-9]/),
 ];
 
 exports.editValidator = async (req, res, next) => {
@@ -33,6 +37,14 @@ exports.editValidator = async (req, res, next) => {
     return res
       .status(200)
       .json({ error: 'Ya existe un trabajador con ese email' });
+  }
+
+  if (!req.isAdmin) {
+    if (req.body.salary) {
+      return res.status(200).json({
+        error: 'El usuario no está autorizado para realizar esta acción.',
+      });
+    }
   }
 
   //Check for error

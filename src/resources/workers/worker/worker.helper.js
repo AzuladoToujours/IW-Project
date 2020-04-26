@@ -8,8 +8,12 @@ const hasAuthorization = (req, res, next) => {
 
   if (!isAuthorized) {
     return res.status(200).json({
-      error: 'El usuario no está autorizado para realizar esta acción',
+      error: 'El usuario no está autorizado para realizar esta acción.',
     });
+  }
+
+  if (isAdmin) {
+    req.isAdmin = isAdmin;
   }
 
   next();
