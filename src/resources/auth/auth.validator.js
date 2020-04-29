@@ -4,9 +4,10 @@ const jwt = require('jsonwebtoken');
 const passwordValidator = require('password-validator');
 
 exports.validations = [
-  check('dni', 'La cédula debe contener entre 5 y 10 dígitos').matches(
-    /[0-9]{5,10}/
-  ),
+  check('dni')
+    .matches(/[0-9]{5,10}/)
+    .isLength({ max: 10 })
+    .withMessage('La cédula debe contener entre 5 y 10 dígitos'),
   //NAMES ARE NOT NULL
   check('names', 'Los nombres deben contener entre 1 y 40 carácteres').matches(
     /[a-zA-Z]{1,40}/
@@ -17,7 +18,9 @@ exports.validations = [
     'Los apellidos deben contener entre 1 y 40 carácteres'
   ).matches(/[a-zA-Z]{1,40}/),
   //MOBILE MUST HAVE TEN DIGITS AND NOT BE NULL
-  check('mobile', 'Celular debe contener 10 dígitos').matches(/[0-9]{10}/),
+  check('mobile', 'Celular debe contener 10 dígitos')
+    .matches(/[0-9]{10}/)
+    .isLength({ max: 10 }),
   //EMAIL VALID AND NORMALIZED
   check('email', 'Provea un email válido').isEmail(),
 ];
@@ -52,6 +55,7 @@ exports.signUpValidator = async (req, res, next) => {
 
   //Check for error
   const errors = validationResult(req);
+
   //if error show the first one as they happend
   if (!errors.isEmpty()) {
     const extractedErrors = [];
@@ -59,7 +63,7 @@ exports.signUpValidator = async (req, res, next) => {
     return res.status(200).json({ errors: extractedErrors });
   }
   //Proceed to next middleware
-  next();
+  //next();
 };
 
 exports.forgotPasswordValidator = async (req, res, next) => {
