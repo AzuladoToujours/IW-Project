@@ -4,10 +4,10 @@ const jwt = require('jsonwebtoken');
 const passwordValidator = require('password-validator');
 
 exports.validations = [
-  check('dni')
-    .matches(/[0-9]{5,10}/)
-    .isLength({ max: 10 })
-    .withMessage('La cédula debe contener entre 5 y 10 dígitos'),
+  check('dni', 'La cédula debe contener entre 5 y 10 dígitos')
+    .matches(/[0-9]/)
+    .isLength({ min: 5, max: 10 }),
+
   //NAMES ARE NOT NULL
   check('names', 'Los nombres deben contener entre 1 y 40 carácteres').matches(
     /[a-zA-Z]{1,40}/

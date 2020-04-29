@@ -2,9 +2,8 @@ const { check, validationResult } = require('express-validator');
 const Worker = require('./worker.model');
 exports.editValidations = [
   check('dni', 'La cédula debe contener entre 5 y 10 dígitos')
-    .optional()
-    .matches(/[0-9]{5,10}/)
-    .isLength({ max: 10 }),
+    .matches(/[0-9]/)
+    .isLength({ min: 5, max: 10 }),
   //NAMES ARE NOT NULL
   check('names', 'Los nombres deben contener entre 1 y 40 carácteres')
     .optional()
