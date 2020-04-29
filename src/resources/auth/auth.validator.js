@@ -63,7 +63,7 @@ exports.signUpValidator = async (req, res, next) => {
     return res.status(200).json({ errors: extractedErrors });
   }
   //Proceed to next middleware
-  //next();
+  next();
 };
 
 exports.forgotPasswordValidator = async (req, res, next) => {
