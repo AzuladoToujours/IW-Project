@@ -1,4 +1,8 @@
 const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const tablePDF = require('../../../utils/TablePDFkit');
+const moment = require('moment');
+moment.locale('es-us');
 
 const hasAuthorization = (req, res, next) => {
   //Checks if the user is signed in and checks if he is the same as the url
@@ -29,8 +33,8 @@ const createDocument = (worker) => {
     align: 'center',
   });
   doc.moveDown();
-  let date = new Date();
-  doc.fontSize(15).text(`Medellín, ${date.toLocaleDateString()}`, {
+  let date = moment().format('LL');
+  doc.fontSize(15).text(`Medellín, ${date}.`, {
     width: 410,
     align: 'left',
   });
@@ -75,4 +79,67 @@ const createDocument = (worker) => {
   return doc;
 };
 
-module.exports = { hasAuthorization, createDocument };
+const createPaymentDocument = (worker) => {
+  let doc = new tablePDF();
+  doc.font('Times-Roman').fontSize(25).text('Human Resources Project', {
+    width: 410,
+    align: 'center',
+  });
+  doc.font('Times-Roman').fontSize(15).text('Colilla de pago', {
+    width: 410,
+    align: 'center',
+  });
+  doc.moveDown();
+  let now = moment().format('MM/YY');
+  let oneMothAgo = moment(`${now}`, 'MM/YY')
+    .subtract(1, 'months')
+    .format('MM/YY');
+  let daysInMonth = moment(`${oneMothAgo}`, 'MM/YY').daysInMonth();
+  let body = `
+  NOMBRE DEL TRABAJADOR:
+  ${worker.names} ${worker.last_names}
+  CÉDULA DE CIUDADANÍA:
+  ${worker.dni}
+  PAGO CORRESPONDIENTE:
+  del 1/${oneMothAgo} al ${daysInMonth}/${oneMothAgo}`;
+  doc.fontSize(15).text(`${body}`, {
+    width: 410,
+    align: 'left',
+  });
+
+  doc.moveDown();
+  // draw content, by passing data to the addBody method
+  let health = parseFloat(worker.salary) * 0.04;
+  let retirement = parseFloat(worker.salary) * 0.04;
+  let help = parseFloat('102854');
+  let rawTotal = parseFloat(worker.salary) + help;
+  let reductions = parseFloat(health + retirement);
+  let total = rawTotal - reductions;
+
+  const table = {
+    headers: ['Concepto', 'Días', 'Valor'],
+    rows: [
+      ['SALARIO BÁSICO', `${daysInMonth}`, `${worker.salary}+`],
+      ['AUXILIO TRANSPORTE', '', `${help}+`],
+      ['SALUD', '', `${health}-`],
+      ['PENSIÓN', '', `${retirement}-`],
+      ['Total devengado', '', `${rawTotal}+`],
+      ['Deducciones', '', `${reductions}-`],
+      ['Total neto', '', `${total}`],
+    ],
+  };
+  doc.table(table, {
+    prepareHeader: () => doc.font('Helvetica-Bold'),
+    prepareRow: (row, i) => doc.font('Helvetica').fontSize(12),
+  });
+  let date = moment().format('LLLL');
+  doc.font('Times-Roman').fontSize(10).text(`Fecha de generación: ${date}`, {
+    width: 410,
+    align: 'right',
+  });
+  doc.end();
+
+  return doc;
+};
+
+module.exports = { hasAuthorization, createDocument, createPaymentDocument };

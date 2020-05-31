@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { sendSignUpMail, addContract } = require('./admin.controller');
+const {
+  sendSignUpMail,
+  addContract,
+  defaultCrudMethods,
+} = require('./admin.controller');
 const {
   sendSignUpMailValidator,
   validations,
@@ -8,7 +12,6 @@ const {
 } = require('./admin.validator');
 const { hasAdminAuthorization } = require('./admin.helper');
 const { requireSignIn } = require('../../auth/auth.helper');
-const { defaultCrudMethods } = require('../worker/worker.controller');
 const { getMany, removeOne, getManyFired } = defaultCrudMethods;
 const upload = require('../../../utils/multer');
 

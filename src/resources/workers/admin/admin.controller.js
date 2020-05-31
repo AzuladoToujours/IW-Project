@@ -1,9 +1,12 @@
 const Worker = require('../worker/worker.model');
+const { crudControllers } = require('../../../utils/crudMethods');
 const jwt = require('jsonwebtoken');
 const { signUpMail } = require('./admin.helper');
 const { uploadContractToS3 } = require('../../../utils/aws.controller');
 const _ = require('lodash');
 const moment = require('moment-timezone');
+
+const defaultCrudMethods = crudControllers(Worker);
 
 const sendSignUpMail = async (req, res) => {
   const { email } = req.body;
@@ -38,4 +41,4 @@ const addContract = async (req, res) => {
   });
 };
 
-module.exports = { sendSignUpMail, addContract };
+module.exports = { sendSignUpMail, addContract, defaultCrudMethods };
