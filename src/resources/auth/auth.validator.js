@@ -2,6 +2,9 @@ const { check, validationResult } = require('express-validator');
 const Worker = require('../workers/worker/worker.model');
 const jwt = require('jsonwebtoken');
 const passwordValidator = require('password-validator');
+const WrongCredentialsError = require('../../errors/wrong-credentials.error');
+const PropertyRequiredError = require('../../errors/property-required.error');
+const NotFoundError = require('../../errors/not-found.error');
 
 exports.validations = [
   check('dni', 'La cédula debe contener entre 5 y 10 dígitos')
@@ -28,16 +31,14 @@ exports.validations = [
 exports.signUpValidator = async (req, res, next) => {
   const workerDniExist = await Worker.findOne({ dni: req.body.dni });
   if (workerDniExist) {
-    return res
-      .status(200)
-      .json({ error: 'Ya existe un trabajador con ese dni' });
+    let wrongCredentials = new WrongCredentialsError();
+    return wrongCredentials.alreadyExistsResponse(res, 'dni');
   }
 
   const workerEmailExist = await Worker.findOne({ email: req.body.email });
   if (workerEmailExist) {
-    return res
-      .status(200)
-      .json({ error: 'Ya existe un trabajador con ese email' });
+    let wrongCredentials = new WrongCredentialsError();
+    return wrongCredentials.alreadyExistsResponse(res, 'email');
   }
 
   const isAdmin = req.params.decodedInformation.role == 'admin';
@@ -46,10 +47,8 @@ exports.signUpValidator = async (req, res, next) => {
     const email = req.body.email;
     const emailAtToken = req.params.decodedInformation.email;
     if (email != emailAtToken) {
-      return res.status(200).json({
-        error:
-          'El email de la invitación y el email sumistrado no corresponden',
-      });
+      let wrongCredentials = new WrongCredentialsError();
+      return wrongCredentials.wrongInvitation(res);
     }
   }
 
@@ -67,8 +66,10 @@ exports.signUpValidator = async (req, res, next) => {
 };
 
 exports.forgotPasswordValidator = async (req, res, next) => {
-  if (!req.body.email)
-    return res.status(200).json({ error: 'No email in request body' });
+  if (!req.body.email) {
+    let propertyRequired = new PropertyRequiredError('email');
+    return propertyRequired.errorResponse(res);
+  }
 
   const { email } = req.body;
 
@@ -76,17 +77,15 @@ exports.forgotPasswordValidator = async (req, res, next) => {
     const worker = await Worker.findOne({ email });
 
     if (!worker) {
-      return res
-        .status(200)
-        .json({ error: 'El trabajador con ese email no existe' });
+      let notFound = new NotFoundError();
+      return notFound.errorResponse(res);
     }
 
     req.worker = worker;
   } catch (e) {
     console.log(e);
-    return res
-      .status(200)
-      .json({ error: 'El trabajador con ese email no existe' });
+    let notFound = new NotFoundError();
+    return notFound.errorResponse(res);
   }
 
   next();

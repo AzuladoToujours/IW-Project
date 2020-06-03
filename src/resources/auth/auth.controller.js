@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { signedUpMail, forgotPasswordMail } = require('./auth.helper');
 const _ = require('lodash');
 require('dotenv').config();
+const WrongCredentialsError = require('../../errors/wrong-credentials.error');
 
 exports.signUp = async (req, res) => {
   const email = req.body.email;
@@ -42,17 +43,18 @@ exports.signIn = async (req, res) => {
 
   await Worker.findOne({ email }, (err, worker) => {
     if (err | !worker) {
-      return res.status(200).json({ error: 'Usuario o contraseña inválidos.' });
+      let wrongCredentials = new WrongCredentialsError();
+      return wrongCredentials.errorResponse(res);
     }
 
     if (!worker.authenticate(password)) {
-      return res.status(200).json({ error: 'Usuario o contraseña inválidos.' });
+      let wrongCredentials = new WrongCredentialsError();
+      return wrongCredentials.errorResponse(res);
     }
 
     if (worker.status == 'FIRED') {
-      return res.status(200).json({
-        error: 'Usted ha sido despedido, comuníquese con un administrador.',
-      });
+      let wrongCredentials = new WrongCredentialsError();
+      return wrongCredentials.firedResponse(res);
     }
 
     //Generate a token with the worker id and the secret jwt

@@ -1,6 +1,7 @@
 const { transporter } = require('../../../utils/mailer');
 require('dotenv').config();
 const { configs } = require('../../../config/index');
+const NotAuthorizedError = require('../../../errors/not-authorized.error');
 
 const signUpMail = (email, token, req, res) => {
   const API_URL = process.env.FRONT_URL;
@@ -31,9 +32,8 @@ const hasAdminAuthorization = (req, res, next) => {
   let isAdmin = req.auth && req.auth.role === 'admin';
   //Checks if the user is signed up and checks if his role is admin
   if (!isAdmin) {
-    return res.status(200).json({
-      error: 'El usuario no está autorizado para realizar esta acción',
-    });
+    let notAuthorized = new NotAuthorizedError();
+    return notAuthorized.errorResponse(res);
   }
 
   next();

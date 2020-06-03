@@ -1,5 +1,8 @@
 const { check, validationResult } = require('express-validator');
 const Worker = require('../worker/worker.model');
+const PropertyRequiredError = require('../../../errors/property-required.error');
+const NotFoundError = require('../../../errors/not-found.error');
+const WrongCredentialsError = require('../../../errors/wrong-credentials.error');
 
 exports.validations = [
   //EMAIL VALID AND NORMALIZED
@@ -10,9 +13,8 @@ exports.sendSignUpMailValidator = async (req, res, next) => {
   const workerExist = await Worker.findOne({ email: req.body.email });
 
   if (workerExist) {
-    return res
-      .status(200)
-      .json({ error: 'Ya existe un trabajador con ese email' });
+    let wrongCredentials = new WrongCredentialsError();
+    return wrongCredentials.alreadyExistsResponse(res, 'email');
   }
 
   //Check for error
@@ -30,20 +32,21 @@ exports.sendSignUpMailValidator = async (req, res, next) => {
 
 exports.addContractValidator = async (req, res, next) => {
   if (!req.body.workerId) {
-    return res.status(200).json({ error: 'No ha ingresado id del trabajador' });
+    let propertyRequired = new PropertyRequiredError('id');
+    return propertyRequired.errorResponse(res);
   }
 
   try {
     const worker = await Worker.findOne({ _id: req.body.workerId });
 
     if (!worker) {
-      return res
-        .status(200)
-        .json({ error: 'No existe un trabajador con ese id' });
+      let notFound = new NotFoundError();
+      return notFound.errorResponse(res);
     }
 
     if (!req.file) {
-      return res.status(200).json({ error: 'No ha agregado ningún archivo' });
+      let propertyRequired = new PropertyRequiredError('archivo');
+      return propertyRequired.errorResponse(res);
     }
 
     let correctMimetype =
@@ -61,6 +64,7 @@ exports.addContractValidator = async (req, res, next) => {
     next();
   } catch (e) {
     console.log(e);
-    return res.status(200).json({ error: 'Id erróneo' });
+    let notFound = new NotFoundError();
+    return notFound.errorResponse(res);
   }
 };

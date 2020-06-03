@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 const Worker = require('../workers/worker/worker.model');
+const PropertyRequiredError = require('../../errors/property-required.error');
+const NotFoundError = require('../../errors/not-found.error');
 
 const signedUpMail = (email, req, res) => {
   const API_URL = process.env.FRONT_URL;
@@ -89,7 +91,8 @@ const rateLimiterUsingThirdParty = rateLimit({
 
 const verifyResetToken = async (req, res, next) => {
   if (!req.body.resetPasswordLink) {
-    res.status(200).json({ error: 'Token no suministrado' });
+    let propertyRequired = new PropertyRequiredError('token');
+    return propertyRequired.errorResponse(res);
   }
 
   const { resetPasswordLink } = req.body;
@@ -97,17 +100,15 @@ const verifyResetToken = async (req, res, next) => {
   try {
     let worker = await Worker.findOne({ resetPasswordLink });
     if (!worker) {
-      return res.status(200).json({
-        error: 'Link inválido!',
-      });
+      let notFound = new NotFoundError();
+      return notFound.errorResponse(res);
     }
 
     var decoded = jwt.verify(resetPasswordLink, process.env.JWT_SECRET);
 
     if (worker.hashed_password != decoded.hashed_password) {
-      return res.status(200).json({
-        error: 'Link inválido!',
-      });
+      let notFound = new NotFoundError();
+      return notFound.errorResponse(res);
     }
 
     req.worker = worker;
@@ -115,9 +116,8 @@ const verifyResetToken = async (req, res, next) => {
     next();
   } catch (e) {
     console.log(e);
-    return res.status(200).json({
-      error: 'Link inválido!',
-    });
+    let notFound = new NotFoundError();
+    return notFound.errorResponse(res);
   }
 };
 

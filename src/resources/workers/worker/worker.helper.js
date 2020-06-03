@@ -1,6 +1,7 @@
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const tablePDF = require('../../../utils/TablePDFkit');
+const NotAuthorizedError = require('../../../errors/not-authorized.error');
 const moment = require('moment');
 moment.locale('es-us');
 
@@ -13,9 +14,8 @@ const hasAuthorization = (req, res, next) => {
   const isAuthorized = isAdmin || isSameUser;
 
   if (!isAuthorized) {
-    return res.status(200).json({
-      error: 'El usuario no está autorizado para realizar esta acción.',
-    });
+    let notAuthorized = new NotAuthorizedError();
+    return notAuthorized.errorResponse(res);
   }
 
   if (isAdmin) {

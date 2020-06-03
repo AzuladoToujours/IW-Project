@@ -1,5 +1,8 @@
 const { check, validationResult } = require('express-validator');
 const Worker = require('./worker.model');
+const WrongCredentialsError = require('../../../errors/wrong-credentials.error');
+const NotAuthorizedError = require('../../../errors/not-authorized.error');
+
 exports.editValidations = [
   check('dni', 'La cédula debe contener entre 5 y 10 dígitos')
     .optional()
@@ -29,23 +32,20 @@ exports.editValidations = [
 exports.editValidator = async (req, res, next) => {
   const workerDniExist = await Worker.findOne({ dni: req.body.dni });
   if (workerDniExist) {
-    return res
-      .status(200)
-      .json({ error: 'Ya existe un trabajador con ese dni' });
+    let wrongCredentials = new WrongCredentialsError();
+    return wrongCredentials.alreadyExistsResponse(res, 'dni');
   }
 
   const workerEmailExist = await Worker.findOne({ email: req.body.email });
   if (workerEmailExist) {
-    return res
-      .status(200)
-      .json({ error: 'Ya existe un trabajador con ese email' });
+    let wrongCredentials = new WrongCredentialsError();
+    return wrongCredentials.alreadyExistsResponse(res, 'email');
   }
 
   if (!req.isAdmin) {
     if (req.body.salary) {
-      return res.status(200).json({
-        error: 'El usuario no está autorizado para realizar esta acción.',
-      });
+      let notAuthorized = new NotAuthorizedError();
+      return notAuthorized.errorResponse(res);
     }
   }
 
