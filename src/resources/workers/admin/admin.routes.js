@@ -1,9 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const { sendSignUpMail } = require('./admin.controller');
-const { sendSignUpMailValidator, validations } = require('./admin.validator');
+const {
+  sendSignUpMail,
+  addContract,
+  defaultCrudMethods,
+} = require('./admin.controller');
+const {
+  sendSignUpMailValidator,
+  validations,
+  addContractValidator,
+} = require('./admin.validator');
 const { hasAdminAuthorization } = require('./admin.helper');
 const { requireSignIn } = require('../../auth/auth.helper');
+const { getMany, removeOne, getManyFired } = defaultCrudMethods;
+const upload = require('../../../utils/multer');
+
+router.get('/admin/worker/s/', requireSignIn, hasAdminAuthorization, getMany);
+router.get(
+  '/admin/worker/fire/d/',
+  requireSignIn,
+  hasAdminAuthorization,
+  getManyFired
+);
+
 router.post(
   '/admin/sendsignup',
   requireSignIn,
@@ -12,6 +31,19 @@ router.post(
   sendSignUpMailValidator,
   sendSignUpMail
 );
-// router.post('/admin/signup', requireSignIn, hasAdminAuthorization, );
+router.put(
+  '/admin/worker/fire/:id',
+  requireSignIn,
+  hasAdminAuthorization,
+  removeOne
+);
+router.put(
+  '/admin/worker/addcontract',
+  requireSignIn,
+  hasAdminAuthorization,
+  upload.single('contract'),
+  addContractValidator,
+  addContract
+);
 
 module.exports = router;
